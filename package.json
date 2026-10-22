@@ -32,7 +32,7 @@
     "@fastify/rate-limit": "^10.3.0",
     "@fastify/swagger": "^9.5.1",
     "@fastify/swagger-ui": "^5.2.3",
-    "argon2": "^0.44.0",
+    "argon2": "^0.45.1",
     "csv-parse": "^6.1.0",
     "csv-stringify": "^6.6.0",
     "dotenv": "^17.2.3",
