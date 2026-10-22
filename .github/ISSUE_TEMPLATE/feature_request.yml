@@ -1,0 +1,9 @@
+name: Feature request
+description: Describe an operational problem
+body:
+  - type: textarea
+    attributes:
+      label: Which workflow is blocked?
+      description: Explain the operation, constraints, and a concrete example before proposing a solution.
+    validations:
+      required: true
