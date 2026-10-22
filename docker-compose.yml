@@ -1,0 +1,96 @@
+name: dockslot
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: dockslot
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dockslot}
+      POSTGRES_DB: dockslot
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U dockslot -d dockslot']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+  init:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+      target: server
+    command: [node, --import, tsx, scripts/initialize.ts]
+    environment: &server-env
+      DATABASE_URL: postgres://dockslot:${POSTGRES_PASSWORD:-dockslot}@postgres:5432/dockslot
+      HOST: 0.0.0.0
+      AUTH_MODE: ${AUTH_MODE:-local}
+      LOCAL_ORGANIZATION_ID: ${LOCAL_ORGANIZATION_ID:-}
+      WEB_ORIGIN: ${WEB_ORIGIN:-http://localhost:3000}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-}
+      DEMO_MODE: ${DEMO_MODE:-true}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      WEBHOOK_ALLOW_PRIVATE: ${WEBHOOK_ALLOW_PRIVATE:-false}
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+  api:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+      target: server
+    command: [node, --import, tsx, apps/api/src/server.ts]
+    environment: *server-env
+    ports: ['127.0.0.1:4000:4000']
+    depends_on:
+      init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://localhost:4000/v1/health/ready').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  worker:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+      target: server
+    command: [node, --import, tsx, apps/worker/src/main.ts]
+    environment: *server-env
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/Dockerfile
+      target: web
+    environment:
+      API_INTERNAL_URL: http://api:4000
+      NEXT_TELEMETRY_DISABLED: '1'
+    ports: ['127.0.0.1:3000:3000']
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          CMD,
+          node,
+          -e,
+          "fetch('http://localhost:3000').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+volumes:
+  postgres-data:
