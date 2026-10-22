@@ -76,11 +76,11 @@ export async function seed(db = pool) {
       'Ryder',
       'J.B. Hunt',
     ];
-    const durationsByDock = [90, 60, 105, 45, 75, 120];
+    const durationsByDock = [75, 60, 90, 45, 75, 105];
     for (let i = 0; i < 25; i++) {
       const dock = data.docks[i % 6],
-        durationMinutes = durationsByDock[i % 6] + (i % 3 === 0 ? 15 : 0),
-        start = day.plus({ hours: 7 + Math.floor(i / 6) * 2.25 }),
+        durationMinutes = i === 24 ? 60 : durationsByDock[i % 6],
+        start = day.plus({ hours: 8 + Math.floor(i / 6) * 2 }),
         startAt = start.toUTC().toISO()!;
       const a = {
         ...appointmentInput.parse({

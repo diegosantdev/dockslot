@@ -26,6 +26,7 @@ export function Booking({
         onSubmit={(e) => {
           e.preventDefault();
           const f = new FormData(e.currentTarget);
+          let createdId = '';
           void run(async () => {
             const a = await api<Appointment>('/appointments', {
               siteId: data.site.id,
@@ -57,8 +58,10 @@ export function Booking({
               hardWindow: f.get('hardWindow') === 'on',
               externalId: String(f.get('externalId') || '') || null,
             });
-            onCreated(a.id);
-          }, 'Appointment requested. Select an available slot to confirm.');
+            createdId = a.id;
+          }, 'Appointment requested. Select an available slot to confirm.').then(() => {
+            if (createdId) onCreated(createdId);
+          });
         }}
       >
         <div className="modal-content">
@@ -180,6 +183,7 @@ export function Detail({
     [editing, setEditing] = useState(false);
   const zone = data.site.timezone;
   useEffect(() => {
+    if (!a) return;
     void api<any[]>(`/appointments/${id}/history`)
       .then(setHistory)
       .catch(() => {});
@@ -195,7 +199,7 @@ export function Detail({
         sessionStorage.removeItem('dockslot-move');
       }
     }
-  }, [id, a.durationMinutes, data.site.currentPlanVersion]);
+  }, [id, a?.durationMinutes, data.site.currentPlanVersion]);
   if (!a) return null;
   const next = (
     {

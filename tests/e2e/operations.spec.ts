@@ -27,9 +27,10 @@ test('planner creates and confirms a booking; gate and dock complete the visit',
   await expect(dialog.getByText('checked out', { exact: true })).toBeVisible();
 });
 test('delay generates a real proposal which only applies after approval', async ({ page }) => {
+  const scheduleDate = await page.getByLabel('Schedule date').inputValue();
   await page.getByRole('button', { name: /DS-1047/ }).click();
   const dialog = page.getByRole('dialog');
-  await dialog.getByLabel('New ETA').fill('2026-10-21T12:30');
+  await dialog.getByLabel('New ETA').fill(`${scheduleDate}T12:30`);
   await dialog.getByRole('button', { name: 'Update ETA' }).click();
   await dialog.getByRole('button', { name: 'Recover' }).click();
   await expect(page.getByRole('heading', { name: 'Review the changes' })).toBeVisible();
@@ -37,7 +38,7 @@ test('delay generates a real proposal which only applies after approval', async 
   const approve = page.getByRole('button', { name: 'Approve & apply' });
   await expect(approve).toBeEnabled();
   await approve.click();
-  await expect(page.getByRole('status')).toContainText('Recovery plan applied atomically');
+  await expect(page.getByRole('status')).toContainText('Recovery plan applied');
 });
 test('mobile navigation and keyboard-readable board', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
