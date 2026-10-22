@@ -76,7 +76,7 @@ export async function seed(db = pool) {
       'Ryder',
       'J.B. Hunt',
     ];
-    const durationsByDock = [75, 60, 90, 45, 75, 105];
+    const durationsByDock = [75, 60, 85, 45, 70, 90];
     for (let i = 0; i < 25; i++) {
       const dock = data.docks[i % 6],
         durationMinutes = i === 24 ? 60 : durationsByDock[i % 6],
