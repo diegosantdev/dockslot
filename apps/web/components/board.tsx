@@ -283,7 +283,7 @@ function AppointmentCard({
       className={`appointment-card ${a.operationType} ${visit === 'in_service' ? 'in-service' : ''} ${conflict ? 'conflict' : ''} ${isDragging ? 'dragging' : ''}`}
       style={{
         left: `calc(${left}% + 3px)`,
-        width: `calc(${Math.max(width, 3)}% - 6px)`,
+        width: `calc(${Math.max(width, 9.5)}% - 6px)`,
         transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
       }}
       title={`${a.reference} · ${a.carrierName} · ${visit.replaceAll('_', ' ')}${conflict ? ` · ${conflict}` : ''}`}
