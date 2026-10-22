@@ -96,7 +96,7 @@ export default function ApiDocsPage() {
         <div className="topbar-right">
           <a className="button" href="/v1/openapi.json" target="_blank" rel="noreferrer">
             <Code2 size={15} />
-            OpenAPI JSON
+            API Schema (JSON)
           </a>
           <a className="button primary" href="/">
             <ArrowLeft size={15} />
@@ -115,7 +115,7 @@ export default function ApiDocsPage() {
             </p>
           </div>
           <div className="heading-actions">
-            <span className="badge">OpenAPI {spec?.openapi || '3.0'}</span>
+            <span className="badge">REST v1</span>
             <span className="badge">v{spec?.info?.version || '0.1.0'}</span>
           </div>
         </div>
