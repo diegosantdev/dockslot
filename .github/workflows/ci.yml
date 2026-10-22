@@ -1,0 +1,47 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: test
+          POSTGRES_PASSWORD: test
+          POSTGRES_DB: dockslot_test
+        ports: ['5432:5432']
+        options: --health-cmd "pg_isready -U test" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgres://test:test@localhost:5432/dockslot_test
+      DATABASE_URL: postgres://test:test@localhost:5432/dockslot_demo
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build -w @dockslot/web
+      - run: npm run benchmark
+      - run: npx playwright install --with-deps chromium
+      - run: psql postgres://test:test@localhost:5432/postgres -c 'CREATE DATABASE dockslot_demo'
+      - run: npm run db:migrate && npm run db:seed
+        env:
+          DEMO_MODE: 'true'
+      - run: npm run test:e2e
+        env:
+          AUTH_MODE: local
+          DEMO_MODE: 'true'
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
