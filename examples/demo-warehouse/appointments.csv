@@ -1,0 +1,3 @@
+reference,carrierName,vehicle,operationType,etaAt,earliestStartAt,latestStartAt,durationMinutes,priority,requiredCapabilities,externalId
+PO-9044,Example Transport,DEMO-1234,inbound,2026-11-04T12:00:00Z,2026-11-04T12:00:00Z,2026-11-04T18:00:00Z,60,3,reefer,PO-9044
+PO-9045,Example Freight,DEMO-5678,outbound,2026-11-04T14:00:00Z,2026-11-04T14:00:00Z,2026-11-04T20:00:00Z,45,2,liftgate,PO-9045
